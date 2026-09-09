@@ -13,17 +13,18 @@ enum IslandPanelLayout {
     /// past the slot into the logo (it used to, once the warning glyph
     /// appeared alongside a three-character countdown).
     ///
-    /// Sized to the widest reachable content at `Typography.pillNumber`
-    /// with 3pt item spacing — "⚠ 100% · 23h" measures 64.5pt — so every
-    /// state renders at full size and the clamp stays a safety net.
-    static let peekPillSlot: CGFloat = 76
+    /// Sized to the widest reachable line at `Typography.pillNumber` with
+    /// 2pt item spacing — "⚠ 100% · 23h" measures 55.9pt — so every state
+    /// renders at full size and the clamp stays a safety net.
+    static let peekPillSlot: CGFloat = 68
     static let peekPillInset: CGFloat = 10
     static var peekPillContentWidth: CGFloat { peekPillSlot - peekPillInset }
 
-    /// Line-box height of `Typography.pillNumber`, used to center the pill
-    /// vertically in the silhouette. Tied to the type size — 10pt SF Mono
-    /// lays out in a 13pt box (11pt was 14pt).
-    static let peekPillHeight: CGFloat = 13
+    /// Height of the pill's two stacked window lines, used to center it
+    /// vertically in the silhouette. Tied to the type size — 9pt SF Mono
+    /// lays out in an 11pt box, so two lines are 22pt. That leaves 5pt above
+    /// and below inside a 32pt menu bar, the shortest bar the app targets.
+    static let peekPillHeight: CGFloat = 22
 
     static func headerHeight(notch: NotchInfo) -> CGFloat { max(32, notch.height) }
 }

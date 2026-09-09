@@ -170,6 +170,9 @@
 "Tightens the gap between logos when the island is on a screen without a hardware notch." = "Tightens the gap between logos when the island is on a screen without a hardware notch.";
 
 /* Provider connections */
+"weekly" = "weekly";
+"5-hour" = "5-hour";
+"%@, %@ %d percent" = "%@, %@ %d percent";
 "On your island" = "On your island";
 "Choose the provider to show." = "Choose the provider to show.";
 "Provider" = "Provider";

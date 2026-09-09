@@ -428,14 +428,16 @@ private struct PeekPillOverlay: View {
     @ObservedObject private var alerts = AlertEngine.shared
 
     var body: some View {
-        let window = currentWindow
+        let windows = currentWindows
         NotchPeekPill(
-            usage: window,
+            primary: windows.primary,
+            secondary: windows.secondary,
             loading: provider.usesLegacyUsage ? usageStore.loading : connections.loading.contains(provider),
             tint: tint,
             alignment: isLeft ? .leading : .trailing,
             severity: severity,
-            windowLengthFallback: provider.usesLegacyUsage ? (currentWindowIsWeekly ? "7d" : "5h") : ""
+            primaryFallback: windows.primaryFallback,
+            secondaryFallback: windows.secondaryFallback
         )
         .padding(isLeft ? .leading : .trailing, IslandPanelLayout.peekPillInset)
         .padding(.top, topPadding)
@@ -449,7 +451,7 @@ private struct PeekPillOverlay: View {
         .animation(.openMorph, value: isVisible)
         .offset(x: pillsVisible ? 0 : (isLeft ? -6 : 6))
         .allowsHitTesting(false)
-        .accessibilityLabel(peekLabel(for: window, provider: providerLabel, weekly: currentWindowIsWeekly))
+        .accessibilityLabel(stackLabel(windows))
         // Mirror the visual opacity gate exactly — both `pillsVisible` and
         // `isVisible` must be true for the pill to render. Keying the
         // accessibility hide on only `isVisible` lets VoiceOver reach a
@@ -461,17 +463,58 @@ private struct PeekPillOverlay: View {
         visibility.selected.contains(provider)
     }
 
-    private var currentWindow: WindowUsage {
-        switch provider {
-        case .claude: return usageStore.claude.fiveHour
-        case .codex:  return usageStore.codex.peekWindow
-        case .grok, .antigravity:
-            return connections.primary(provider)?.window ?? .unknown
-        }
+    /// The two windows the pill stacks, plus the window-length glyph each
+    /// line falls back to when no active countdown is known.
+    ///
+    /// The primary is whatever the alert engine tracks for this provider, so
+    /// the warning glyph and the silhouette tint describe the line they sit
+    /// on. The secondary is the provider's other window: weekly for the
+    /// legacy pair, and for a connected provider the SECOND metric the user
+    /// picked in Settings (`ProviderQuotaPreferences` already resolves that
+    /// ordering, and its first entry is the primary).
+    private struct Windows {
+        var primary: WindowUsage
+        var secondary: WindowUsage?
+        var primaryFallback: String
+        var secondaryFallback: String
+        var primaryIsWeekly: Bool
+        var secondaryName: String
     }
 
-    private var currentWindowIsWeekly: Bool {
-        provider == .codex && usageStore.codex.peekWindowIsWeekly
+    private var currentWindows: Windows {
+        switch provider {
+        case .claude:
+            let weekly = usageStore.claude.weekly
+            return Windows(primary: usageStore.claude.fiveHour,
+                           secondary: weekly.isUnreported ? nil : weekly,
+                           primaryFallback: "5h", secondaryFallback: "7d",
+                           primaryIsWeekly: false,
+                           secondaryName: L10n.tr("weekly"))
+        case .codex:
+            let usage = usageStore.codex
+            // peekWindow prefers 5h and falls back to weekly on weekly-only
+            // plans, so the secondary is whichever one it did not take. A
+            // single-window plan leaves the other unreported, and an
+            // unreported window renders as a fabricated reading rather than
+            // an absent line — drop it instead.
+            let weeklyIsPrimary = usage.peekWindowIsWeekly
+            let other = weeklyIsPrimary ? usage.fiveHour : usage.weekly
+            return Windows(primary: usage.peekWindow,
+                           secondary: other.isUnreported ? nil : other,
+                           primaryFallback: weeklyIsPrimary ? "7d" : "5h",
+                           secondaryFallback: weeklyIsPrimary ? "5h" : "7d",
+                           primaryIsWeekly: weeklyIsPrimary,
+                           secondaryName: weeklyIsPrimary ? L10n.tr("5-hour") : L10n.tr("weekly"))
+        case .grok, .antigravity:
+            let limits = connections.limits(provider)
+            let primary = connections.primary(provider)
+            let second = limits.first { $0.id != primary?.id }
+            return Windows(primary: primary?.window ?? .unknown,
+                           secondary: second?.window,
+                           primaryFallback: "", secondaryFallback: "",
+                           primaryIsWeekly: false,
+                           secondaryName: second.map { L10n.tr($0.label) } ?? "")
+        }
     }
 
     private var severity: AlertEngine.Severity {
@@ -480,6 +523,18 @@ private struct PeekPillOverlay: View {
 
     private var tint: Color { provider.color }
     private var providerLabel: String { provider.name }
+
+    /// VoiceOver reads the stack as one element, so the primary keeps its
+    /// full phrasing and the secondary is appended as a short clause. A
+    /// secondary with no reading is left off rather than voiced as a dash.
+    private func stackLabel(_ windows: Windows) -> String {
+        let base = peekLabel(for: windows.primary, provider: providerLabel,
+                             weekly: windows.primaryIsWeekly)
+        guard let secondary = windows.secondary, secondary.hasReading,
+              !windows.secondaryName.isEmpty else { return base }
+        let pct = secondary.displayedPercentInt(mode: UsageDisplayModeStore.shared.mode)
+        return L10n.tr("%@, %@ %d percent", base, windows.secondaryName, pct)
+    }
 
     private func peekLabel(for window: WindowUsage, provider: String, weekly: Bool) -> String {
         if !self.provider.usesLegacyUsage {

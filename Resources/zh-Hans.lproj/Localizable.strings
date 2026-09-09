@@ -170,6 +170,9 @@
 "Tightens the gap between logos when the island is on a screen without a hardware notch." = "在没有硬件刘海的屏幕上收紧 logo 之间的间距。";
 
 /* Provider connections */
+"weekly" = "每周";
+"5-hour" = "5 小时";
+"%@, %@ %d percent" = "%@，%@ %d%%";
 "On your island" = "在你的灵动岛上";
 "Choose the provider to show." = "选择要显示的提供方。";
 "Provider" = "提供方";
