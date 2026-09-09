@@ -17,11 +17,7 @@ struct PanelHeader: View {
         HStack(spacing: 0) {
             title(visibility.left, isLeft: true)
             Color.clear.frame(width: notch.width)
-            if let right = visibility.right {
-                title(right, isLeft: false)
-            } else {
-                Color.clear.frame(maxWidth: .infinity)
-            }
+            Color.clear.frame(maxWidth: .infinity)
         }
         .frame(height: IslandPanelLayout.headerHeight(notch: notch))
         .padding(.horizontal, IslandPanelLayout.horizontalInset)

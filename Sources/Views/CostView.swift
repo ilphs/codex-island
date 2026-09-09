@@ -13,13 +13,9 @@ struct CostView: View {
         HStack(spacing: 0) {
             providerBlock(visibility.left)
             hairline
-            if let right = visibility.right {
-                providerBlock(right)
-            } else {
-                breakdown(for: visibility.left)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    .padding(.horizontal, IslandPanelLayout.columnInset)
-            }
+            breakdown(for: visibility.left)
+                .frame(maxWidth: .infinity, alignment: .top)
+                .padding(.horizontal, IslandPanelLayout.columnInset)
         }
         .frame(height: IslandPanelLayout.tileHeight)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -39,7 +35,7 @@ struct CostView: View {
         } else {
             CostBlock(color: provider.color, cost: cost,
                           loading: store.isLoading(provider), provider: provider.costProvider,
-                          centerWhenSingle: visibility.right == nil)
+                          centerWhenSingle: true)
             .help(store.localNotices[provider] ?? "Estimated API-equivalent cost from local CLI records; not a subscription charge.")
         }
     }

@@ -10,70 +10,42 @@ struct ProviderSelectionView: View {
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 6) {
                 Text(L10n.tr("On your island")).font(.system(size: 15, weight: .semibold))
-                Text(L10n.tr("Choose up to two providers."))
+                Text(L10n.tr("Choose the provider to show."))
                     .font(.system(size: 12)).foregroundStyle(.white.opacity(0.68))
                     .fixedSize(horizontal: false, vertical: true)
             }
-            HStack(alignment: .bottom, spacing: 10) {
-                slot(0, provider: selection.left)
-                Button {
-                    withAnimation(reduceMotion ? nil : .openMorph) { selection.swap() }
-                } label: {
-                    Image(systemName: "arrow.left.arrow.right")
-                        .frame(width: 32, height: 44)
-                }
-                .buttonStyle(.plain)
-                .disabled(selection.right == nil)
-                .opacity(selection.right == nil ? 0.3 : 1)
-                .help(L10n.tr("Swap left and right"))
-                .accessibilityLabel(L10n.tr("Swap left and right"))
-                slot(1, provider: selection.right)
-            }
+            providerSlot
             Divider().overlay(.white.opacity(0.08))
-            ForEach(selection.selected) { provider in
-                connectionRow(provider)
-            }
+            connectionRow(selection.provider)
         }
         .padding(24)
         .task { connections.refreshSelected() }
     }
 
-    private func slot(_ index: Int, provider: IslandProvider?) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(L10n.tr(index == 0 ? "Left" : "Right"))
-                .font(.system(size: 11, weight: .medium)).foregroundStyle(.white.opacity(0.65))
-            HStack(spacing: 8) {
-                if let provider { ProviderMark(provider: provider) }
-                else { Image(systemName: "plus").frame(width: 20, height: 20) }
-                Menu {
-                    ForEach(IslandProvider.allCases) { candidate in
-                        Button {
-                            withAnimation(reduceMotion ? nil : .openMorph) { selection.set(candidate, at: index) }
-                        } label: {
-                            if candidate == provider { Label(candidate.name, systemImage: "checkmark") }
-                            else { Text(candidate.name) }
-                        }
-                        .disabled(index == 1 && selection.right == nil && candidate == selection.left)
+    private var providerSlot: some View {
+        let provider = selection.provider
+        return HStack(spacing: 8) {
+            ProviderMark(provider: provider)
+            Menu {
+                ForEach(IslandProvider.allCases) { candidate in
+                    Button {
+                        withAnimation(reduceMotion ? nil : .openMorph) { selection.select(candidate) }
+                    } label: {
+                        if candidate == provider { Label(candidate.name, systemImage: "checkmark") }
+                        else { Text(candidate.name) }
                     }
-                    if index == 1 {
-                        Divider()
-                        Button(L10n.tr("None — use one provider")) {
-                            withAnimation(reduceMotion ? nil : .openMorph) { selection.set(nil, at: 1) }
-                        }
-                    }
-                } label: {
-                    Text(provider?.name ?? L10n.tr("Add provider"))
-                        .font(.system(size: 13, weight: .medium)).lineLimit(1)
                 }
-                .menuStyle(.borderlessButton)
-                .accessibilityLabel(L10n.tr(index == 0 ? "Left provider" : "Right provider"))
-                .accessibilityValue(provider?.name ?? L10n.tr("None"))
+            } label: {
+                Text(provider.name)
+                    .font(.system(size: 13, weight: .medium)).lineLimit(1)
             }
-            .padding(10)
-            .frame(maxWidth: .infinity, minHeight: 44)
-            .background(.white.opacity(0.065), in: RoundedRectangle(cornerRadius: 8))
+            .menuStyle(.borderlessButton)
+            .accessibilityLabel(L10n.tr("Provider"))
+            .accessibilityValue(provider.name)
         }
-        .frame(maxWidth: .infinity)
+        .padding(10)
+        .frame(maxWidth: .infinity, minHeight: 44)
+        .background(.white.opacity(0.065), in: RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder

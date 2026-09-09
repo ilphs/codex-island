@@ -121,8 +121,12 @@ final class IslandWindowController {
         let local = NSPoint(x: cursor.x - win.minX, y: cursor.y - win.minY)
 
         let size = model.size
+        // Mirrors the `.offset(x: model.xOffset)` the root view applies to
+        // the silhouette. Without it the armed region stays centered while
+        // the shape sits left of center, so the island stops reacting
+        // along its leading edge and reacts to empty menu bar on the right.
         let rect = NSRect(
-            x: win.width / 2 - size.width / 2,
+            x: win.width / 2 - size.width / 2 + model.xOffset,
             y: win.height - size.height,
             width: size.width,
             height: size.height

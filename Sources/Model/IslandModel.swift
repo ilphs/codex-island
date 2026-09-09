@@ -23,6 +23,17 @@ final class IslandModel: ObservableObject {
     @Published var notch: NotchInfo
     @Published var edgeBump: EdgeBump?
 
+    /// Horizontal shift of the silhouette, in points, negative = leftward.
+    ///
+    /// The island exposes one provider on the left, so the silhouette grows
+    /// only leftward and its trailing edge stays glued to the notch's
+    /// trailing edge. The window is centered on the notch and the
+    /// silhouette is centered in the window, so keeping those edges
+    /// aligned means moving the shape half its extension to the left.
+    /// The expanded panel is left centered — it's four times the notch's
+    /// width, so anchoring it to one notch edge would push it off-screen.
+    @Published var xOffset: CGFloat = 0
+
     /// Side extension that houses each brand logo in compact state.
     /// 32pt = the 20pt logo plus its 9pt edge padding, leaving 3pt of
     /// clearance before the physical notch begins.
@@ -143,12 +154,12 @@ final class IslandModel: ObservableObject {
         switch state {
         case .compact:
             size = CGSize(
-                width: notch.width + tabWidth * 2,
+                width: notch.width + tabWidth,
                 height: notch.height
             )
         case .peek:
             size = CGSize(
-                width: notch.width + tabWidth * 2 + pillSlotWidth * 2,
+                width: notch.width + tabWidth + pillSlotWidth,
                 height: notch.height
             )
         case .expanded:
@@ -157,5 +168,13 @@ final class IslandModel: ObservableObject {
                 height: max(notch.height, expandedHeight)
             )
         }
+        // Everything the collapsed states add to the notch is on the left,
+        // so half of it has to come back off the center to keep the right
+        // edges flush. See `xOffset`. Screens without a hardware notch have
+        // no edge to glue to — the silhouette is a free-floating pill
+        // there, so it stays centered the way it always has.
+        xOffset = (state == .expanded || !notch.hasNotch)
+            ? 0
+            : -(size.width - notch.width) / 2
     }
 }

@@ -14,7 +14,11 @@ final class ProviderConnectionStore: ObservableObject {
     private var selectedProviders = Set(ProviderVisibilityStore.shared.selected)
 
     private init() {
-        selection = ProviderVisibilityStore.shared.$selected
+        // The island shows one provider, but the teardown below is written
+        // against a set so it still reads correctly for a selection of any
+        // size — map the single provider up rather than special-casing it.
+        selection = ProviderVisibilityStore.shared.$provider
+            .map { provider in [provider] }
             .dropFirst().receive(on: RunLoop.main).sink { [weak self] selected in
                 guard let self else { return }
                 let next = Set(selected)

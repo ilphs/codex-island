@@ -81,22 +81,9 @@ struct IslandRootView: View {
                             .padding(.top, max(0, (model.notch.height - 20) / 2))
                     }
                 }
-                .overlay(alignment: .topTrailing) {
-                    if model.state != .expanded, let right = visibility.right {
-                        ProviderMark(provider: right)
-                            .padding(.trailing, logoEdgePadding)
-                            .padding(.top, max(0, (model.notch.height - 20) / 2))
-                    }
-                }
                 .overlay(alignment: .topLeading) {
                     if model.state != .compact {
                         PeekPillOverlay(provider: visibility.left, isLeft: true,
-                            topPadding: max(0, (model.notch.height - IslandPanelLayout.peekPillHeight) / 2), pillsVisible: pillsVisible)
-                    }
-                }
-                .overlay(alignment: .topTrailing) {
-                    if model.state != .compact, let right = visibility.right {
-                        PeekPillOverlay(provider: right, isLeft: false,
                             topPadding: max(0, (model.notch.height - IslandPanelLayout.peekPillHeight) / 2), pillsVisible: pillsVisible)
                     }
                 }
@@ -205,6 +192,12 @@ struct IslandRootView: View {
                         }
                     }
                 }
+                // Applied last so the silhouette, its halo, the logo and
+                // the pill all travel as one unit — and so the shift rides
+                // the same openMorph/closeMorph spring as the width change.
+                // `IslandWindowController` mirrors this offset in the rect
+                // it uses to arm mouse events; the two must stay in sync.
+                .offset(x: model.xOffset)
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

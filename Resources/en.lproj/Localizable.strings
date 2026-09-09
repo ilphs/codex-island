@@ -171,14 +171,8 @@
 
 /* Provider connections */
 "On your island" = "On your island";
-"Choose up to two providers." = "Choose up to two providers.";
-"Swap left and right" = "Swap left and right";
-"Left" = "Left";
-"Right" = "Right";
-"Left provider" = "Left provider";
-"Right provider" = "Right provider";
-"None — use one provider" = "None — use one provider";
-"Add provider" = "Add provider";
+"Choose the provider to show." = "Choose the provider to show.";
+"Provider" = "Provider";
 "None" = "None";
 "Connecting" = "Connecting";
 "Uses your local CLI login." = "Uses your local CLI login.";

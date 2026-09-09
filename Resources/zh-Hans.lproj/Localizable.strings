@@ -171,14 +171,8 @@
 
 /* Provider connections */
 "On your island" = "在你的灵动岛上";
-"Choose up to two providers." = "最多选择两个提供方。";
-"Swap left and right" = "交换左右位置";
-"Left" = "左侧";
-"Right" = "右侧";
-"Left provider" = "左侧提供方";
-"Right provider" = "右侧提供方";
-"None — use one provider" = "无 — 仅使用一个提供方";
-"Add provider" = "添加提供方";
+"Choose the provider to show." = "选择要显示的提供方。";
+"Provider" = "提供方";
 "None" = "无";
 "Connecting" = "正在连接";
 "Uses your local CLI login." = "使用本机 CLI 登录。";

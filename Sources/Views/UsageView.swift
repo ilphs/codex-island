@@ -15,9 +15,7 @@ struct UsageView: View {
         HStack(spacing: 0) {
             providerBlock(visibility.left)
             hairline
-            if let right = visibility.right {
-                providerBlock(right)
-            } else if let legacy = visibility.left.legacy {
+            if let legacy = visibility.left.legacy {
                 PerModelBreakdown(provider: legacy, metric: .tokens)
                     .frame(maxWidth: .infinity, alignment: .top)
                     .padding(.horizontal, IslandPanelLayout.columnInset)
