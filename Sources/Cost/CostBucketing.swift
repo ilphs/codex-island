@@ -70,4 +70,15 @@ enum Duration {
         if hours == 0 { return "\(days)d" }
         return "\(days)d \(hours)h"
     }
+
+    /// Largest unit only (`29m` / `19h` / `10d`) — identical to `compact`
+    /// below a day, but never the two-unit `10d 19h` form. The peek pill
+    /// uses this because its slot is sized to the worst case, so carrying
+    /// the hours digit past a day would cost every user ~25pt of
+    /// silhouette width per side permanently. The full form stays in the
+    /// expanded panel, where there is room for it.
+    static func coarse(_ seconds: TimeInterval) -> String {
+        if seconds < 86400 { return compact(seconds) }
+        return "\(Int(seconds / 86400))d"
+    }
 }

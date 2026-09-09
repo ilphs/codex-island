@@ -24,16 +24,17 @@ final class IslandModel: ObservableObject {
     @Published var edgeBump: EdgeBump?
 
     /// Side extension that houses each brand logo in compact state.
-    let tabWidth: CGFloat = 38
+    /// 32pt = the 20pt logo plus its 9pt edge padding, leaving 3pt of
+    /// clearance before the physical notch begins.
+    let tabWidth: CGFloat = 32
 
     /// Per-side outboard slot that houses the peek-state percentage pill.
-    /// Sized for "100% · Nd Nh" worst case at the chosen pill typography
-    /// (weekly Codex windows can land at e.g. `6d 23h`). Fixed (not
-    /// text-measured) so percentage updates don't jitter the silhouette
-    /// width during refresh. Grown symmetrically on both sides regardless
-    /// of which provider is visible — keeps the silhouette balanced over
-    /// the physical notch.
-    let pillSlotWidth: CGFloat = 96
+    /// Fixed (not text-measured) so percentage updates don't jitter the
+    /// silhouette width during refresh. Grown symmetrically on both sides
+    /// regardless of which provider is visible — keeps the silhouette
+    /// balanced over the physical notch. Sizing rationale and the matching
+    /// pill insets live on `IslandPanelLayout.peekPillSlot`.
+    let pillSlotWidth: CGFloat = IslandPanelLayout.peekPillSlot
 
     /// Visible expanded panel width.
     private let expandedWidth: CGFloat = 800

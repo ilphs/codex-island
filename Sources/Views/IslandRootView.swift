@@ -91,13 +91,13 @@ struct IslandRootView: View {
                 .overlay(alignment: .topLeading) {
                     if model.state != .compact {
                         PeekPillOverlay(provider: visibility.left, isLeft: true,
-                            topPadding: max(0, (model.notch.height - 14) / 2), pillsVisible: pillsVisible)
+                            topPadding: max(0, (model.notch.height - IslandPanelLayout.peekPillHeight) / 2), pillsVisible: pillsVisible)
                     }
                 }
                 .overlay(alignment: .topTrailing) {
                     if model.state != .compact, let right = visibility.right {
                         PeekPillOverlay(provider: right, isLeft: false,
-                            topPadding: max(0, (model.notch.height - 14) / 2), pillsVisible: pillsVisible)
+                            topPadding: max(0, (model.notch.height - IslandPanelLayout.peekPillHeight) / 2), pillsVisible: pillsVisible)
                     }
                 }
                 .contentShape(IslandShape())
@@ -444,7 +444,7 @@ private struct PeekPillOverlay: View {
             severity: severity,
             windowLengthFallback: provider.usesLegacyUsage ? (currentWindowIsWeekly ? "7d" : "5h") : ""
         )
-        .padding(isLeft ? .leading : .trailing, 14)
+        .padding(isLeft ? .leading : .trailing, IslandPanelLayout.peekPillInset)
         .padding(.top, topPadding)
         // Two opacity bindings stack:
         //   - `pillsVisible` is the peek lifecycle (hover-in / hover-out).

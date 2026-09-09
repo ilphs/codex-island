@@ -19,6 +19,7 @@ import SwiftUI
 ///       SF Pro medium for window labels ("Today", "Apr")
 ///       SF Pro semibold for buttons ("Refresh", "Check")
 ///   10pt — micro row
+///       SF Mono semibold for the peek pill ("28% · 29m")
 ///       SF Mono regular for caption (reset glyph "↻ 5h", "synced 2m ago")
 ///       SF Pro medium for sub-bar labels and picker tile labels
 ///       SF Pro semibold for tracked-uppercase section labels
@@ -39,6 +40,7 @@ enum Typography {
     static let chartValue    = Font.system(size: 18, weight: .semibold, design: .monospaced)
     static let previewNumber = Font.system(size: 15, weight: .semibold, design: .monospaced)
     static let bodyNumber    = Font.system(size: 11, weight: .semibold, design: .monospaced)
+    static let pillNumber    = Font.system(size: 10, weight: .semibold, design: .monospaced)
 
     // MARK: - Display text (SF Pro)
 

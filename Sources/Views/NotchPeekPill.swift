@@ -5,7 +5,7 @@ import SwiftUI
 /// directly on the dark silhouette, like the logos.
 ///
 /// Renders one of three states:
-///   • value:    "32% · 2h" / "0% · 6d 23h" (active countdown) or
+///   • value:    "32% · 2h" / "0% · 6d" (active countdown) or
 ///               "0% · 5h" (window-length fallback at lower opacity when no
 ///               active resetAt is known)
 ///   • loading:  small pulsing dot (only when `loading && usedPercent == 0`)
@@ -30,10 +30,10 @@ struct NotchPeekPill: View {
                 LoadingDot()
             } else if showDash {
                 Text("—%")
-                    .font(Typography.bodyNumber)
+                    .font(Typography.pillNumber)
                     .foregroundStyle(.white.opacity(0.40))
             } else {
-                HStack(spacing: 4) {
+                HStack(spacing: 3) {
                     if alignment == .leading {
                         // Left pill: percent on the outside (left), hours
                         // remaining on the inside (toward the notch).
@@ -54,24 +54,34 @@ struct NotchPeekPill: View {
         }
         .monospacedDigit()
         .lineLimit(1)
-        .fixedSize()
+        // Overflow guard. The slot is sized so every reachable string fits
+        // at full size, but the old `.fixedSize()` meant an unforeseen
+        // combination (it was ⚠ + a three-character countdown + "100%")
+        // silently spilled outboard into the provider logo instead of
+        // being reined in. Clamp to the slot and let type scale a few
+        // percent in that corner case.
+        .minimumScaleFactor(0.85)
+        .frame(
+            maxWidth: IslandPanelLayout.peekPillContentWidth,
+            alignment: alignment == .leading ? .leading : .trailing
+        )
     }
 
     private var warningGlyph: some View {
         Text("⚠")
-            .font(Typography.bodyNumber)
+            .font(Typography.pillNumber)
             .foregroundStyle(effectiveTint)
     }
 
     private var percentLabel: some View {
         Text(percentText)
-            .font(Typography.bodyNumber)
+            .font(Typography.pillNumber)
             .foregroundStyle(effectiveTint)
     }
 
     private var separator: some View {
         Text("·")
-            .font(Typography.bodyNumber)
+            .font(Typography.pillNumber)
             .foregroundStyle(.white.opacity(0.40))
     }
 
@@ -80,7 +90,7 @@ struct NotchPeekPill: View {
     /// glyph shape, weaker visual presence.
     private var resetLabel: some View {
         Text(resetText ?? windowLengthFallback)
-            .font(Typography.bodyNumber)
+            .font(Typography.pillNumber)
             .foregroundStyle(.white.opacity(resetText == nil ? 0.45 : 0.70))
     }
 
@@ -115,14 +125,16 @@ struct NotchPeekPill: View {
         "\(usage.displayedPercentInt(mode: usageDisplay.mode))%"
     }
 
-    /// Shared compact countdown (`Nm` / `Nh` / `Nd Nh`). Returns nil if
-    /// there's no resetAt or the reset has already passed (happens
-    /// transiently when a window rolls over before the next fetch lands).
+    /// Largest-unit countdown (`Nm` / `Nh` / `Nd`) — `Duration.coarse`,
+    /// not `.compact`, so the pill slot doesn't have to be sized for the
+    /// two-unit `10d 19h` form. Returns nil if there's no resetAt or the
+    /// reset has already passed (happens transiently when a window rolls
+    /// over before the next fetch lands).
     private var resetText: String? {
         guard let resetAt = usage.resetAt else { return nil }
         let remaining = resetAt.timeIntervalSinceNow
         guard remaining > 0 else { return nil }
-        return Duration.compact(remaining)
+        return Duration.coarse(remaining)
     }
 }
 
