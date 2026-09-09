@@ -76,9 +76,10 @@ struct IslandRootView: View {
                 }
                 .overlay(alignment: .topLeading) {
                     if model.state != .expanded {
-                        ProviderMark(provider: visibility.left)
+                        ProviderMark(provider: visibility.left,
+                                     size: IslandPanelLayout.peekLogoSize)
                             .padding(.leading, logoEdgePadding)
-                            .padding(.top, max(0, (model.notch.height - 20) / 2))
+                            .padding(.top, max(0, (model.notch.height - IslandPanelLayout.peekLogoSize) / 2))
                     }
                 }
                 .overlay(alignment: .topLeading) {
@@ -327,8 +328,8 @@ struct IslandRootView: View {
     /// behavior; expanded panel layout depends on it).
     private var logoEdgePadding: CGFloat {
         switch model.state {
-        case .compact, .expanded: return 9
-        case .peek:               return model.pillSlotWidth + 9
+        case .compact, .expanded: return IslandPanelLayout.peekLogoInset
+        case .peek:               return model.pillSlotWidth + IslandPanelLayout.peekLogoInset
         }
     }
 }

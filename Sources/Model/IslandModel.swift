@@ -34,10 +34,10 @@ final class IslandModel: ObservableObject {
     /// width, so anchoring it to one notch edge would push it off-screen.
     @Published var xOffset: CGFloat = 0
 
-    /// Side extension that houses each brand logo in compact state.
-    /// 32pt = the 20pt logo plus its 9pt edge padding, leaving 3pt of
-    /// clearance before the physical notch begins.
-    let tabWidth: CGFloat = 32
+    /// Side extension that houses the brand logo in compact state — the
+    /// logo, its edge inset, and the clearance before the physical notch.
+    /// See `IslandPanelLayout.logoTabWidth`.
+    let tabWidth: CGFloat = IslandPanelLayout.logoTabWidth
 
     /// Per-side outboard slot that houses the peek-state percentage pill.
     /// Fixed (not text-measured) so percentage updates don't jitter the

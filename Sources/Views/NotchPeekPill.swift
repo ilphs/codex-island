@@ -11,9 +11,11 @@ import SwiftUI
 /// only one window pass `secondary: nil` and render a single line.
 ///
 /// Each line renders one of two states:
-///   • value:    "32% · 2h" (active countdown) or "0% · 5h" (window-length
-///               fallback at lower opacity when no active resetAt is known)
-///   • errored:  "—%"       (no reading to show)
+///   • value:    "32% 2h" (active countdown) or "0% 5h" (window-length
+///               fallback at lower opacity when no active resetAt is known).
+///               Above threshold the primary reads "⚠ 32%" instead — see
+///               `warningGlyph`.
+///   • errored:  "—%"      (no reading to show)
 ///
 /// The cold-start spinner replaces the whole stack, not a single line.
 ///
@@ -109,17 +111,23 @@ private struct WindowLine: View {
                     if alignment == .leading {
                         // Left pill: percent on the outside (left), time
                         // remaining on the inside (toward the notch).
-                        if severity != .none { warningGlyph }
-                        percentLabel
-                        separator
-                        resetLabel
+                        if severity != .none {
+                            warningGlyph
+                            percentLabel
+                        } else {
+                            percentLabel
+                            resetLabel
+                        }
                     } else {
                         // Right pill: mirrored so percent stays on the
                         // outside (right) and time remaining stays inside.
-                        resetLabel
-                        separator
-                        percentLabel
-                        if severity != .none { warningGlyph }
+                        if severity != .none {
+                            percentLabel
+                            warningGlyph
+                        } else {
+                            resetLabel
+                            percentLabel
+                        }
                     }
                 }
             }
@@ -127,6 +135,11 @@ private struct WindowLine: View {
         .lineLimit(1)
     }
 
+    /// Takes the countdown's place rather than adding to the line. The slot
+    /// is sized to the widest line, so an extra glyph would cost every user
+    /// permanent silhouette width for a state most never see — and sizing
+    /// for it instead left the alert state to the 0.85 scale clamp, which
+    /// shrank type exactly where legibility matters most.
     private var warningGlyph: some View {
         Text("⚠")
             .font(Typography.pillNumber)
@@ -137,12 +150,6 @@ private struct WindowLine: View {
         Text("\(usage.displayedPercentInt(mode: mode))%")
             .font(Typography.pillNumber)
             .foregroundStyle(tint)
-    }
-
-    private var separator: some View {
-        Text("·")
-            .font(Typography.pillNumber)
-            .foregroundStyle(.white.opacity(0.40))
     }
 
     /// Lower opacity on the fallback differentiates a passive "5-hour

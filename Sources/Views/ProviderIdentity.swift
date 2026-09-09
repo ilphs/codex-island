@@ -32,6 +32,10 @@ extension IslandProvider {
 
 struct ProviderMark: View {
     let provider: IslandProvider
+    /// Rendered edge length. The island silhouette passes a smaller mark
+    /// (`IslandPanelLayout.peekLogoSize`) because its width is scarce;
+    /// the expanded panel and Settings take the default.
+    var size: CGFloat = 20
     private static let claude = Bundle.main.url(forResource: "claude_logo", withExtension: "pdf").flatMap { NSImage(contentsOf: $0) }
     private static let codex = Bundle.main.url(forResource: "openai_logo", withExtension: "pdf").flatMap { NSImage(contentsOf: $0) }
 
@@ -57,7 +61,7 @@ struct ProviderMark: View {
             }
         }
         .foregroundStyle(provider.color)
-        .frame(width: 20, height: 20)
+        .frame(width: size, height: size)
         .accessibilityLabel(provider.name)
     }
 }
